@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Will Your Corpus Last? — Retirement Calculator for Indian Investors</title>
+<meta name="description" content="Calculate how long your investment corpus will sustain your lifestyle. Understand the 4% rule adjusted for Indian inflation.">
+<meta property="og:title" content="Will Your Corpus Last? — Retirement Calculator">
+<meta property="og:description" content="Free interactive tool to check if your retirement corpus can sustain your lifestyle. Built for Indian investors.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1219;
+  --card: #171c26;
+  --card-hover: #1c2230;
+  --border: #252d3d;
+  --border-light: #2f3a4e;
+  --text: #f0f2f5;
+  --text-secondary: #a0aec0;
+  --text-muted: #6b7a90;
+  --text-faint: #4a5568;
+
+  --blue: #6c9fff;
+  --blue-bg: rgba(108,159,255,0.08);
+  --green: #48d89f;
+  --green-bg: rgba(72,216,159,0.08);
+  --green-strong: #22c55e;
+  --amber: #fbbf24;
+  --amber-bg: rgba(251,191,36,0.08);
+  --red: #f87171;
+  --red-bg: rgba(248,113,113,0.08);
+  --purple: #a78bfa;
+
+  --font: 'Inter', -apple-system, system-ui, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.page { max-width: 700px; margin: 0 auto; padding: 32px 20px 80px; }
+
+/* ===== Header ===== */
+.hero { text-align: center; margin-bottom: 32px; }
+.hero-badge {
+  display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--blue); background: var(--blue-bg);
+  padding: 4px 12px; border-radius: 20px; margin-bottom: 12px;
+}
+.hero h1 {
+  font-size: clamp(24px, 5vw, 32px); font-weight: 700; letter-spacing: -0.03em;
+  line-height: 1.15; margin-bottom: 8px;
+  background: linear-gradient(135deg, #fff 0%, #a0aec0 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub { font-size: 14px; color: var(--text-muted); max-width: 440px; margin: 0 auto; }
+
+/* ===== Tabs ===== */
+.tabs {
+  display: flex; background: var(--card); border-radius: var(--radius);
+  padding: 4px; margin-bottom: 24px; border: 1px solid var(--border);
+}
+.tab {
+  flex: 1; text-align: center; padding: 10px 8px; font-size: 13px; font-weight: 500;
+  border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;
+  color: var(--text-muted); background: transparent; border: none; font-family: var(--font);
+}
+.tab:hover { color: var(--text-secondary); }
+.tab.active { background: var(--border); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ===== Slider Controls ===== */
+.controls { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.control-full { grid-column: 1 / -1; }
+.ctrl {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px 16px 12px;
+}
+.ctrl-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.ctrl-label {
+  font-size: 12px; font-weight: 500; color: var(--text-secondary);
+  display: flex; align-items: center; gap: 5px;
+}
+.ctrl-val { font-size: 18px; font-weight: 600; font-family: var(--mono); }
+.help-dot {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 15px; height: 15px; border-radius: 50%; font-size: 9px; font-weight: 700;
+  background: var(--border); color: var(--text-muted); cursor: help;
+  position: relative;
+}
+.help-dot .tip {
+  display: none; position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
+  background: #2d3548; color: var(--text-secondary); font-size: 11px; font-weight: 400;
+  padding: 8px 10px; border-radius: 6px; width: 220px; z-index: 10;
+  line-height: 1.4; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  font-family: var(--font);
+}
+.help-dot:hover .tip { display: block; }
+
+/* Range slider styling */
+input[type=range] {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 6px; border-radius: 3px; outline: none;
+  background: var(--border);
+}
+input[type=range]::-webkit-slider-runnable-track {
+  height: 6px; border-radius: 3px;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 22px; height: 22px; margin-top: -8px;
+  border-radius: 50%; cursor: pointer;
+  background: #fff; border: 3px solid var(--bg);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.1);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.15); box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.15);
+}
+input[type=range]::-moz-range-track {
+  height: 6px; border-radius: 3px; border: none; background: var(--border);
+}
+input[type=range]::-moz-range-thumb {
+  width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+  background: #fff; border: 3px solid var(--bg);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+input[type=range]::-moz-range-progress { background: var(--blue); border-radius: 3px; height: 6px; }
+.ctrl-range { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-faint); font-family: var(--mono); margin-top: 4px; }
+
+/* ===== Presets ===== */
+.presets-wrap { margin-bottom: 20px; }
+.presets-label { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.preset {
+  padding: 7px 12px; font-size: 12px; font-weight: 500; border-radius: 20px;
+  border: 1px solid var(--border); background: transparent; color: var(--text-secondary);
+  cursor: pointer; font-family: var(--font); transition: all 0.15s;
+  white-space: nowrap;
+}
+.preset:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-bg); }
+
+/* ===== Results ===== */
+.results {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 20px; margin-bottom: 20px;
+}
+.result-headline { text-align: center; margin-bottom: 16px; }
+.result-verdict { font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-bottom: 4px; }
+.result-big { font-size: 48px; font-weight: 700; font-family: var(--mono); line-height: 1; }
+.result-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+.stat { text-align: center; }
+.stat-label { font-size: 10px; font-weight: 600; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
+.stat-value { font-size: 16px; font-weight: 600; font-family: var(--mono); }
+
+/* ===== Timeline bar ===== */
+.timeline { margin-bottom: 20px; }
+.timeline-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+.tl-bar {
+  position: relative; height: 32px; background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); overflow: visible;
+}
+.tl-fill { height: 100%; border-radius: 7px; transition: width 0.5s cubic-bezier(.4,0,.2,1); }
+.tl-marker {
+  position: absolute; top: 0; height: 100%;
+  border-left: 1px dashed rgba(255,255,255,0.1);
+}
+.tl-marker span {
+  position: absolute; bottom: -16px; left: -8px;
+  font-size: 10px; color: var(--text-faint); font-family: var(--mono);
+}
+
+/* ===== Chart ===== */
+.chart-wrap { margin-bottom: 20px; }
+.chart-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+.chart {
+  display: flex; align-items: flex-end; gap: 2px; height: 140px;
+  padding: 0 0 20px; border-bottom: 1px solid var(--border); position: relative;
+}
+.bar {
+  flex: 1; max-width: 18px; min-height: 2px; border-radius: 3px 3px 0 0;
+  transition: height 0.3s ease; position: relative;
+}
+.bar-age {
+  position: absolute; bottom: -16px; left: 50%; transform: translateX(-50%);
+  font-size: 9px; color: var(--text-faint); font-family: var(--mono); white-space: nowrap;
+}
+
+/* ===== Insight box ===== */
+.insight {
+  border-radius: var(--radius); padding: 16px; margin-bottom: 16px;
+  border: 1px solid;
+}
+.insight.safe { background: var(--green-bg); border-color: rgba(72,216,159,0.2); }
+.insight.caution { background: var(--amber-bg); border-color: rgba(251,191,36,0.2); }
+.insight.danger { background: var(--red-bg); border-color: rgba(248,113,113,0.2); }
+.insight.info { background: var(--blue-bg); border-color: rgba(108,159,255,0.2); }
+.insight-icon { font-size: 18px; margin-bottom: 4px; }
+.insight-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.insight-body { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+.insight-body strong { color: var(--text); }
+
+/* ===== 4% Rule ===== */
+.rule-scenario {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;
+}
+.rule-scenario.best { border-color: rgba(72,216,159,0.3); background: var(--green-bg); }
+.rule-left { flex: 1; }
+.rule-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.rule-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.rule-right { text-align: right; }
+.rule-corpus { font-size: 14px; font-weight: 600; font-family: var(--mono); color: var(--text); }
+.rule-years { font-size: 22px; font-weight: 700; font-family: var(--mono); }
+.rule-years-label { font-size: 10px; color: var(--text-muted); }
+
+/* Corpus check bars */
+.cc-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.cc-label { width: 55px; font-size: 12px; font-weight: 600; font-family: var(--mono); text-align: right; flex-shrink: 0; }
+.cc-track { flex: 1; height: 20px; background: rgba(255,255,255,0.03); border-radius: 4px; overflow: hidden; }
+.cc-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+.cc-stat { width: 90px; font-size: 11px; font-family: var(--mono); flex-shrink: 0; }
+
+/* ===== About ===== */
+.about-section { margin-bottom: 16px; }
+.about-section h3 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.about-section p { font-size: 13px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 8px; }
+
+/* ===== Footer ===== */
+.footer {
+  margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border);
+  text-align: center; font-size: 11px; color: var(--text-faint); line-height: 1.8;
+}
+.footer a { color: var(--blue); text-decoration: none; }
+.footer a:hover { text-decoration: underline; }
+.disclaimer {
+  font-size: 10px; color: var(--text-faint); margin-top: 8px;
+  padding: 10px; background: var(--card); border-radius: var(--radius-sm);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 520px) {
+  .controls { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat-value { font-size: 14px; }
+  .result-big { font-size: 36px; }
+  .rule-scenario { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .rule-right { text-align: left; }
+}
+
+/* ===== Net Worth / Safety Net ===== */
+.nw-toggle {
+  width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 4px; transition: all 0.2s; font-family: var(--font);
+}
+.nw-toggle:hover { border-color: var(--border-light); background: var(--card-hover); }
+.nw-toggle-left { display: flex; align-items: center; gap: 10px; }
+.nw-toggle-icon { font-size: 20px; }
+.nw-toggle-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.nw-toggle-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.nw-arrow { font-size: 14px; color: var(--text-muted); transition: transform 0.3s; }
+.nw-arrow.open { transform: rotate(180deg); }
+.nw-body {
+  display: none; background: var(--card); border: 1px solid var(--border); border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius); padding: 16px; margin-bottom: 16px;
+  margin-top: -4px;
+}
+.nw-body.open { display: block; }
+.nw-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.nw-field { display: flex; flex-direction: column; gap: 4px; }
+.nw-field label { font-size: 11px; font-weight: 500; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+.nw-field input {
+  background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 10px 12px; font-size: 14px; font-family: var(--mono); color: var(--text);
+  outline: none; transition: border-color 0.2s;
+}
+.nw-field input:focus { border-color: var(--blue); }
+.nw-field input::placeholder { color: var(--text-faint); }
+.nw-result {
+  background: linear-gradient(135deg, rgba(72,216,159,0.06), rgba(108,159,255,0.06));
+  border: 1px solid rgba(72,216,159,0.15); border-radius: var(--radius); padding: 16px;
+}
+.nw-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; }
+.nw-row.total { border-top: 1px solid var(--border); margin-top: 6px; padding-top: 12px; }
+.nw-row-label { font-size: 12px; color: var(--text-secondary); }
+.nw-row-val { font-size: 14px; font-weight: 600; font-family: var(--mono); }
+.nw-msg { font-size: 12px; color: var(--text-secondary); line-height: 1.6; margin-top: 12px; padding: 10px; background: var(--card-hover); border-radius: var(--radius-sm); }
+.nw-msg strong { color: var(--green); }
+@media (max-width: 520px) { .nw-inputs { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">Free Tool</div>
+    <h1>Will Your Corpus Last?</h1>
+    <p class="hero-sub">Find out how long your retirement savings can sustain your lifestyle — adjusted for Indian inflation</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs" role="tablist">
+    <button class="tab active" onclick="openTab('calc')" role="tab">Calculator</button>
+    <button class="tab" onclick="openTab('rule')" role="tab">4% Rule</button>
+    <button class="tab" onclick="openTab('about')" role="tab">How to Use</button>
+  </div>
+
+  <!-- ==================== CALCULATOR ==================== -->
+  <div id="p-calc" class="panel active">
+
+    <div class="controls">
+      <div class="ctrl">
+        <div class="ctrl-head">
+          <span class="ctrl-label">
+            Total Savings
+            <span class="help-dot">?<span class="tip">Your total invested amount in mutual funds, stocks, FDs, etc. This is the money you'll draw from.</span></span>
+          </span>
+          <span class="ctrl-val" style="color:var(--blue)" id="d-corpus"></span>
+        </div>
+        <input type="range" id="s-corpus" min="2500000" max="100000000" step="2500000" value="20000000" oninput="calc()">
+        <div class="ctrl-range"><span>₹25L</span><span>₹10Cr</span></div>
+      </div>
+
+      <div class="ctrl">
+        <div class="ctrl-head">
+          <span class="ctrl-label">
+            Expected Return
+            <span class="help-dot">?<span class="tip">Annual return from your investments. Equity mutual funds: 10–13%. Balanced funds: 8–10%. FDs: 6–7%.</span></span>
+          </span>
+          <span class="ctrl-val" style="color:var(--green)" id="d-return"></span>
+        </div>
+        <input type="range" id="s-return" min="6" max="16" step="0.5" value="11" oninput="calc()">
+        <div class="ctrl-range"><span>6%</span><span>16%</span></div>
+      </div>
+
+      <div class="ctrl">
+        <div class="ctrl-head">
+          <span class="ctrl-label">
+            Monthly Expense
+            <span class="help-dot">?<span class="tip">Your total monthly household spend — rent, EMIs, groceries, school fees, insurance, utilities, everything.</span></span>
+          </span>
+          <span class="ctrl-val" style="color:var(--red)" id="d-expense"></span>
+        </div>
+        <input type="range" id="s-expense" min="20000" max="500000" step="5000" value="200000" oninput="calc()">
+        <div class="ctrl-range"><span>₹20K</span><span>₹5L</span></div>
+      </div>
+
+      <div class="ctrl">
+        <div class="ctrl-head">
+          <span class="ctrl-label">
+            Inflation
+            <span class="help-dot">?<span class="tip">How fast prices rise yearly. India average: 6–7% in cities, 4.5–5.5% in smaller towns. This makes your expenses grow every year.</span></span>
+          </span>
+          <span class="ctrl-val" style="color:var(--amber)" id="d-inflation"></span>
+        </div>
+        <input type="range" id="s-inflation" min="3" max="10" step="0.5" value="7" oninput="calc()">
+        <div class="ctrl-range"><span>3%</span><span>10%</span></div>
+      </div>
+
+      <div class="ctrl control-full">
+        <div class="ctrl-head">
+          <span class="ctrl-label">
+            Any Monthly Income?
+            <span class="help-dot">?<span class="tip">Salary, consulting, freelancing, rental income, or any regular earnings during this period. Even ₹50K/month changes the picture dramatically.</span></span>
+          </span>
+          <span class="ctrl-val" style="color:var(--purple)" id="d-income"></span>
+        </div>
+        <input type="range" id="s-income" min="0" max="300000" step="5000" value="0" oninput="calc()">
+        <div class="ctrl-range"><span>₹0</span><span>₹3L</span></div>
+      </div>
+
+      <div class="ctrl control-full">
+        <div class="ctrl-head">
+          <span class="ctrl-label">Your Age Now</span>
+          <span class="ctrl-val" style="color:var(--text-secondary)" id="d-age"></span>
+        </div>
+        <input type="range" id="s-age" min="25" max="65" step="1" value="41" oninput="calc()">
+        <div class="ctrl-range"><span>25</span><span>65</span></div>
+      </div>
+    </div>
+
+    <!-- Presets -->
+    <div class="presets-wrap">
+      <div class="presets-label">Try a scenario</div>
+      <div class="presets">
+        <button class="preset" onclick="pre(200000,7,0)">Metro city ₹2L</button>
+        <button class="preset" onclick="pre(120000,5.5,0)">Tier-2 city ₹1.2L</button>
+        <button class="preset" onclick="pre(100000,5,0)">Own house ₹1L</button>
+        <button class="preset" onclick="pre(80000,4.5,0)">Small town ₹80K</button>
+        <button class="preset" onclick="pre(100000,5,75000)">Tier-2 + ₹75K income</button>
+        <button class="preset" onclick="pre(50000,4,0)">Frugal ₹50K</button>
+      </div>
+    </div>
+
+    <!-- Main result -->
+    <div class="results" id="result-card"></div>
+
+    <!-- Timeline -->
+    <div class="timeline">
+      <div class="timeline-label">Your money's runway</div>
+      <div class="tl-bar" id="tl-bar"></div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-wrap">
+      <div class="chart-label">How your balance changes each year</div>
+      <div class="chart" id="chart"></div>
+    </div>
+
+    <!-- Insight -->
+    <div id="insight"></div>
+
+    <!-- Net Worth / Safety Net -->
+    <button class="nw-toggle" onclick="toggleNW()">
+      <div class="nw-toggle-left">
+        <span class="nw-toggle-icon">🏠</span>
+        <div>
+          <div class="nw-toggle-title">Your real safety net</div>
+          <div class="nw-toggle-sub">Add property, gold & car to see your true net worth</div>
+        </div>
+      </div>
+      <span class="nw-arrow" id="nw-arrow">▼</span>
+    </button>
+    <div class="nw-body" id="nw-body">
+      <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px; line-height:1.6;">
+        Most Indian families have significant wealth in property and gold that they don't count as savings. While you can't withdraw from these monthly, knowing their value changes how you feel about your financial position.
+      </div>
+      <div class="nw-inputs">
+        <div class="nw-field">
+          <label>🏠 Property / Land value
+            <span class="help-dot">?<span class="tip">Approximate market value of any home, flat, ancestral house, or land you own. Check local rates on 99acres or MagicBricks for a rough estimate.</span></span>
+          </label>
+          <input type="text" id="nw-prop" placeholder="e.g. 50,00,000" oninput="calcNW()">
+        </div>
+        <div class="nw-field">
+          <label>✨ Gold & jewellery value
+            <span class="help-dot">?<span class="tip">Estimated value of gold jewellery at home. Rough guide: 1 sovereign (8g) ≈ ₹62,000. 10 sovereigns = ~₹6.2L. Include all family gold.</span></span>
+          </label>
+          <input type="text" id="nw-gold" placeholder="e.g. 8,00,000" oninput="calcNW()">
+        </div>
+        <div class="nw-field">
+          <label>🚗 Vehicle value
+            <span class="help-dot">?<span class="tip">Approximate resale value of your car/bike. Check on CarDekho or OLX for similar models.</span></span>
+          </label>
+          <input type="text" id="nw-car" placeholder="e.g. 4,00,000" oninput="calcNW()">
+        </div>
+        <div class="nw-field">
+          <label>📦 Other assets
+            <span class="help-dot">?<span class="tip">PF balance, PPF, NSC, post office deposits, LIC maturity value, or any other assets not included in the corpus above.</span></span>
+          </label>
+          <input type="text" id="nw-other" placeholder="e.g. 10,00,000" oninput="calcNW()">
+        </div>
+      </div>
+      <div class="nw-result" id="nw-result" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- ==================== 4% RULE ==================== -->
+  <div id="p-rule" class="panel">
+
+    <div class="insight info" style="margin-bottom:20px;">
+      <div class="insight-title" style="color:var(--blue)">What is the 4% Rule?</div>
+      <div class="insight-body">
+        <p>From the <strong>1998 Trinity Study</strong> (USA): Withdraw 4% of your <em>starting</em> corpus in year 1. Then increase that rupee amount by inflation every year after.</p>
+        <p style="margin-top:8px"><strong style="color:var(--red)">Common mistake:</strong> People think it means "withdraw 4% of the current balance each year." It doesn't. It's 4% of the <em>initial</em> amount, adjusted for inflation.</p>
+        <p style="margin-top:8px"><strong style="color:var(--amber)">Why India is different:</strong> The original study assumed ~3% inflation and ~10% returns. India has 6–7% inflation, which eats into your real return. The safe rate here is lower.</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="ctrl">
+        <div class="ctrl-head">
+          <span class="ctrl-label">Expected Return</span>
+          <span class="ctrl-val" style="color:var(--green)" id="rd-return"></span>
+        </div>
+        <input type="range" id="rs-return" min="8" max="15" step="0.5" value="12" oninput="calcRule()">
+      </div>
+      <div class="ctrl">
+        <div class="ctrl-head">
+          <span class="ctrl-label">Inflation</span>
+          <span class="ctrl-val" style="color:var(--amber)" id="rd-inflation"></span>
+        </div>
+        <input type="range" id="rs-inflation" min="3" max="9" step="0.5" value="7" oninput="calcRule()">
+      </div>
+      <div class="ctrl control-full">
+        <div class="ctrl-head">
+          <span class="ctrl-label">Monthly Expense</span>
+          <span class="ctrl-val" style="color:var(--red)" id="rd-expense"></span>
+        </div>
+        <input type="range" id="rs-expense" min="20000" max="500000" step="5000" value="200000" oninput="calcRule()">
+      </div>
+    </div>
+
+    <div class="insight info" style="text-align:center; margin-bottom:16px;">
+      <div style="font-size:11px; color:var(--text-muted); font-family:var(--mono); margin-bottom:2px;">FORMULA: Corpus = Annual Expense ÷ Withdrawal Rate</div>
+      <div style="font-size:12px; color:var(--text-secondary); font-family:var(--mono);" id="rule-formula"></div>
+    </div>
+
+    <div id="rule-cards"></div>
+
+    <div class="insight caution" style="margin-top:16px;">
+      <div class="insight-title" style="color:var(--amber)">What does YOUR corpus support?</div>
+      <div style="font-size:11px; color:var(--text-muted); font-family:var(--mono); margin-bottom:10px;" id="rc-label"></div>
+      <div id="rc-bars"></div>
+    </div>
+
+    <div id="rule-bottom" class="insight danger" style="margin-top:12px;"></div>
+  </div>
+
+  <!-- ==================== HOW TO USE ==================== -->
+  <div id="p-about" class="panel">
+    <div class="insight info" style="margin-bottom:16px;">
+      <div class="insight-body" style="font-size:13px;">
+        Unlike most retirement calculators that tell you <em>how much to save</em>, this one tells you <strong>how long your existing savings will last</strong> — and what levers you can pull to make them last longer.
+      </div>
+    </div>
+    <div class="about-section">
+      <h3>📊 What each input means</h3>
+      <p><strong>Total Savings (Corpus)</strong> — The lump sum you've saved or expect to have. This could be in mutual funds, stocks, PPF, FDs, or a mix. It's the money you'll be drawing from.</p>
+      <p><strong>Expected Return</strong> — The annual growth rate on your investments. Diversified equity mutual funds in India have historically returned 10–14% CAGR over 10+ years. Debt funds or FDs return 6–8%. Use 10–11% for a realistic blended estimate.</p>
+      <p><strong>Monthly Expense</strong> — Your total household spend per month. Include rent/EMI, groceries, utilities, school fees, insurance premiums, medical expenses, and any SIP contributions you plan to continue.</p>
+      <p><strong>Inflation</strong> — How fast prices rise. India's CPI inflation has averaged ~6% over the last decade. Metro cities tend to be 6–7%, smaller towns 4.5–5.5%. This makes your expenses grow every year even if your lifestyle stays the same.</p>
+      <p><strong>Monthly Income</strong> — Any regular income you have during this period — salary, consulting, freelancing, rental income, pension. Even a small income dramatically extends your corpus because it reduces the net withdrawal.</p>
+    </div>
+    <div class="about-section">
+      <h3>🏠 Your hidden safety net</h3>
+      <p>Many Indian families feel financially anxious because they only count their bank balance and mutual funds. But a typical middle-class household with 10–15 years of working experience often has <strong>₹30–80 lakh in property</strong> and <strong>₹5–15 lakh in gold</strong> sitting at home — wealth that doesn't show up in any app.</p>
+      <p>The "Your real safety net" section in the calculator lets you enter your property, gold, vehicle, and other asset values. These aren't money you withdraw monthly (so they don't change the drawdown calculation), but seeing your <strong>true net worth</strong> alongside your liquid corpus gives a much more complete — and often reassuring — picture of where you stand.</p>
+    </div>
+    <div class="about-section">
+      <h3>💡 The two most powerful levers</h3>
+      <p><strong>1. Reduce your withdrawal rate.</strong> Moving from a ₹2L/month metro lifestyle to a ₹1L/month tier-2 city with your own house can 2–3× your corpus lifespan. The presets let you see this instantly.</p>
+      <p><strong>2. Earn even a small income.</strong> ₹50–75K/month from consulting, freelancing, or rental income during the first 10–15 years can turn a finite corpus into a permanent one. The corpus only needs to beat the gap between your expenses and income.</p>
+    </div>
+    <div class="about-section">
+      <h3>⚠️ What this tool doesn't model</h3>
+      <p>Taxes on capital gains (which reduce effective returns by 1–2%), sequence-of-returns risk (a bad market year early on hurts more than later), large one-time expenses (medical emergencies, weddings), and real-world return volatility. Use this for directional planning, not precise predictions.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    Built by <a href="https://linkedin.com/in/jaganmohankb" target="_blank" rel="noopener">Jaganmohan KB</a> · Free to use & share
+    <div class="disclaimer">
+      ⚠️ This is a projection tool for personal awareness, not financial advice. Actual returns vary. Consult a SEBI-registered financial advisor for personalized planning.
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ===== Helpers ===== */
+function fmt(v) {
+  if (v === 0) return '₹0';
+  var a = Math.abs(v);
+  if (a >= 1e7) return '₹' + (v/1e7).toFixed(2) + ' Cr';
+  if (a >= 1e5) return '₹' + (v/1e5).toFixed(1) + ' L';
+  if (a >= 1e3) return '₹' + (v/1e3).toFixed(0) + 'K';
+  return '₹' + v;
+}
+function gv(id) { return parseFloat(document.getElementById(id).value); }
+function round1(n) { return Math.round(n * 10) / 10; }
+
+function sim(corpus, annRet, mExp, infRate, mInc, age, maxY) {
+  maxY = maxY || 55;
+  var mr = annRet / 12, bal = corpus, exp = mExp, inc = mInc || 0, mo = 0;
+  var d = [{y:0, age:age, bal:corpus, mE:mExp}];
+  for (var y = 1; y <= maxY; y++) {
+    for (var m = 0; m < 12; m++) {
+      bal = bal * (1 + mr) + inc - exp;
+      mo++;
+      if (bal <= 0) return {dm:mo, da:age+mo/12, d:d};
+    }
+    exp *= (1 + infRate);
+    inc *= (1 + infRate * 0.7);
+    d.push({y:y, age:age+y, bal:Math.round(bal), mE:Math.round(exp)});
+  }
+  return {dm:null, da:null, d:d};
+}
+
+/* ===== Color helpers ===== */
+function yearColor(yrs, dep) {
+  if (!dep) return 'var(--green)';
+  if (yrs > 25) return 'var(--green)';
+  if (yrs > 12) return 'var(--amber)';
+  return 'var(--red)';
+}
+function yearBg(yrs, dep) {
+  if (!dep) return 'linear-gradient(90deg, #48d89f, #48d89f88)';
+  if (yrs > 25) return 'linear-gradient(90deg, #48d89f, #48d89faa)';
+  if (yrs > 12) return 'linear-gradient(90deg, #fbbf24, #fbbf24aa)';
+  return 'linear-gradient(90deg, #f87171, #f87171aa)';
+}
+
+/* ===== Main calculator ===== */
+function calc() {
+  var corpus = gv('s-corpus'), ret = gv('s-return'), exp = gv('s-expense');
+  var inf = gv('s-inflation'), inc = gv('s-income'), age = gv('s-age');
+
+  // Display values — read raw to avoid float errors
+  document.getElementById('d-corpus').textContent = fmt(corpus);
+  document.getElementById('d-return').textContent = ret + '%';
+  document.getElementById('d-expense').textContent = fmt(exp);
+  document.getElementById('d-inflation').textContent = inf + '%';
+  document.getElementById('d-income').textContent = inc > 0 ? fmt(inc) : 'None';
+  document.getElementById('d-age').textContent = age + ' yrs';
+
+  var r = sim(corpus, ret/100, exp, inf/100, inc, age);
+  var yrs = r.da ? round1(r.da - age) : null;
+  var endAge = r.da ? Math.round(r.da) : null;
+  var wdRate = round1(exp * 12 / corpus * 100);
+  var realRet = round1(((1 + ret/100) / (1 + inf/100) - 1) * 100);
+  var col = yearColor(yrs, r.da);
+
+  // Result card
+  var verdict = r.da
+    ? (yrs < 10 ? 'Your savings run out quickly' : yrs < 20 ? 'You have a moderate runway' : 'You have a long runway')
+    : 'Your money can last a lifetime';
+  var emoji = r.da ? (yrs < 10 ? '⚠️' : yrs < 20 ? '📊' : '👍') : '✅';
+
+  document.getElementById('result-card').innerHTML =
+    '<div class="result-headline">' +
+      '<div class="result-verdict">' + emoji + ' ' + verdict + '</div>' +
+      '<div class="result-big" style="color:' + col + '">' + (yrs !== null ? yrs + ' yrs' : '∞') + '</div>' +
+      '<div class="result-sub">' + (endAge ? 'Money lasts until age ' + endAge : 'Corpus grows — never depletes') + '</div>' +
+    '</div>' +
+    '<div class="stats-row">' +
+      '<div class="stat"><div class="stat-label">Withdrawal Rate</div><div class="stat-value" style="color:' + (wdRate > 6 ? 'var(--red)' : wdRate > 4 ? 'var(--amber)' : 'var(--green)') + '">' + wdRate + '%</div></div>' +
+      '<div class="stat"><div class="stat-label">Real Return</div><div class="stat-value" style="color:' + (realRet > 4 ? 'var(--green)' : realRet > 2 ? 'var(--amber)' : 'var(--red)') + '">' + realRet + '%</div></div>' +
+      '<div class="stat"><div class="stat-label">Expense in 10 yrs</div><div class="stat-value" style="color:var(--amber)">' + fmt(Math.round(exp * Math.pow(1+inf/100, 10))) + '</div></div>' +
+    '</div>';
+
+  // Timeline
+  var span = 50, pct = r.da ? Math.min(((r.da - age) / span) * 100, 100) : 100;
+  var tlH = '<div class="tl-fill" style="width:' + pct + '%;background:' + yearBg(yrs, r.da) + '"></div>';
+  [10,20,30,40].forEach(function(yr) {
+    var p = (yr / span) * 100;
+    tlH += '<div class="tl-marker" style="left:' + p + '%"><span>' + (age + yr) + '</span></div>';
+  });
+  document.getElementById('tl-bar').innerHTML = tlH;
+
+  // Chart
+  var maxB = Math.max.apply(null, r.d.map(function(x){return x.bal}));
+  var ch = '';
+  r.d.filter(function(_,i){return i > 0}).forEach(function(d) {
+    var h = maxB > 0 ? Math.max((d.bal / maxB) * 120, 2) : 2;
+    var dep = d.bal <= 0;
+    var bg = dep ? 'var(--red)' : (d.bal > corpus ? 'linear-gradient(0deg, var(--green), #86efac)' : 'linear-gradient(0deg, var(--blue), #93c5fd)');
+    var showAge = d.age % 10 === 0 || dep;
+    ch += '<div class="bar" style="height:' + h + 'px;background:' + bg + '">';
+    if (showAge) ch += '<div class="bar-age">' + d.age + '</div>';
+    ch += '</div>';
+  });
+  document.getElementById('chart').innerHTML = ch;
+
+  // Insight
+  var eIn10 = fmt(Math.round(exp * Math.pow(1 + inf/100, 10)));
+  var eIn20 = fmt(Math.round(exp * Math.pow(1 + inf/100, 20)));
+  var ins = '';
+  if (!r.da) {
+    ins = '<div class="insight safe"><div class="insight-icon">✅</div><div class="insight-title" style="color:var(--green)">Self-sustaining</div><div class="insight-body">Your real return (' + realRet + '%) exceeds your withdrawal rate (' + wdRate + '%). The corpus grows over time even as you draw from it. This is the sweet spot.</div></div>';
+  } else if (yrs < 10) {
+    ins = '<div class="insight danger"><div class="insight-icon">🚨</div><div class="insight-title" style="color:var(--red)">Depletes in ' + yrs + ' years</div><div class="insight-body">At ' + inf + '% inflation, your ' + fmt(exp) + '/month becomes <strong style="color:var(--amber)">' + eIn10 + '</strong> in 10 years. Your withdrawal rate (' + wdRate + '%) is far above the safe zone (3–4%). Try reducing expenses or adding income using the presets above.</div></div>';
+  } else if (yrs < 20) {
+    ins = '<div class="insight caution"><div class="insight-icon">⚡</div><div class="insight-title" style="color:var(--amber)">Moderate runway: ' + yrs + ' years</div><div class="insight-body">This gives you time but not lifetime security. Adding even ₹50K–75K/month income during the first 10 years, or reducing expenses by moving to a lower-cost city, would dramatically extend this.</div></div>';
+  } else {
+    ins = '<div class="insight safe"><div class="insight-icon">👍</div><div class="insight-title" style="color:var(--green)">Strong runway: ' + yrs + ' years</div><div class="insight-body">Your corpus lasts until age ' + endAge + '. A small amount of income or a slight expense reduction could make this permanent.</div></div>';
+  }
+  document.getElementById('insight').innerHTML = ins;
+
+  // Update range fill (webkit only)
+  updateSliderFills();
+}
+
+function updateSliderFills() {
+  document.querySelectorAll('input[type=range]').forEach(function(s) {
+    var pct = ((s.value - s.min) / (s.max - s.min)) * 100;
+    var col = s.style.accentColor || 'var(--blue)';
+    s.style.background = 'linear-gradient(to right, ' + col + ' 0%, ' + col + ' ' + pct + '%, #252d3d ' + pct + '%, #252d3d 100%)';
+  });
+}
+
+function pre(exp, inf, inc) {
+  document.getElementById('s-expense').value = exp;
+  document.getElementById('s-inflation').value = inf;
+  document.getElementById('s-income').value = inc;
+  calc();
+}
+
+/* ===== 4% Rule ===== */
+function calcRule() {
+  var ret = gv('rs-return'), inf = gv('rs-inflation'), exp = gv('rs-expense');
+  document.getElementById('rd-return').textContent = ret + '%';
+  document.getElementById('rd-inflation').textContent = inf + '%';
+  document.getElementById('rd-expense').textContent = fmt(exp);
+
+  var annExp = exp * 12;
+  var realRet = round1(((1 + ret/100) / (1 + inf/100) - 1) * 100);
+  var safeRate = round1(Math.max(realRet - 0.5, 0));
+
+  document.getElementById('rule-formula').innerHTML =
+    'Annual expense: ' + fmt(annExp) + ' &nbsp;·&nbsp; Real return: ' + realRet + '% &nbsp;·&nbsp; India-safe rate: ' + safeRate + '%';
+
+  var sc = [
+    {r:3, n:'Conservative', d:'Maximum safety margin'},
+    {r:4, n:'Classic 4% Rule', d:'US-based, may not fit India'},
+    {r:safeRate, n:'India-Adjusted', d:'Accounts for higher inflation'},
+    {r:6, n:'Aggressive', d:'Higher risk of depletion'}
+  ];
+
+  var html = '';
+  sc.forEach(function(s) {
+    if (s.r <= 0) return;
+    var need = annExp / (s.r / 100);
+    var sm = sim(need, ret/100, exp, inf/100, 0, 41);
+    var yrs = sm.da ? round1(sm.da - 41) : null;
+    var isBest = s.n === 'India-Adjusted';
+    html += '<div class="rule-scenario' + (isBest ? ' best' : '') + '">' +
+      '<div class="rule-left"><div class="rule-name">' + s.n + ' (' + s.r + '%)</div><div class="rule-desc">' + s.d + '</div></div>' +
+      '<div class="rule-right"><div class="rule-corpus">' + fmt(Math.round(need)) + '</div>' +
+      '<div class="rule-years" style="color:' + yearColor(yrs, sm.da) + '">' + (yrs !== null ? yrs : '∞') + '</div>' +
+      '<div class="rule-years-label">years</div></div></div>';
+  });
+  document.getElementById('rule-cards').innerHTML = html;
+
+  // Corpus bars
+  document.getElementById('rc-label').textContent = 'At ' + fmt(annExp) + '/yr, ' + ret + '% return, ' + inf + '% inflation:';
+  var checks = [5e6, 1e7, 1.5e7, 2e7, 3e7, 5e7];
+  var bh = '';
+  checks.forEach(function(c) {
+    var rate = round1(annExp / c * 100);
+    var sm = sim(c, ret/100, exp, inf/100, 0, 41);
+    var yrs = sm.da ? Math.round(sm.da - 41) : null;
+    var safe = !sm.da;
+    var pct = safe ? 100 : Math.min((yrs / 50) * 100, 100);
+    var col = safe ? 'var(--green)' : rate > 6 ? 'var(--red)' : rate > 4 ? 'var(--amber)' : 'var(--green)';
+    bh += '<div class="cc-row"><div class="cc-label">' + fmt(c) + '</div>' +
+      '<div class="cc-track"><div class="cc-fill" style="width:' + pct + '%;background:' + col + '"></div></div>' +
+      '<div class="cc-stat" style="color:' + col + '">' + rate + '% → ' + (yrs !== null ? yrs + 'yr' : '∞') + '</div></div>';
+  });
+  document.getElementById('rc-bars').innerHTML = bh;
+
+  // Bottom
+  var need4 = annExp / 0.04;
+  var needSafe = safeRate > 0 ? annExp / (safeRate / 100) : Infinity;
+  document.getElementById('rule-bottom').innerHTML =
+    '<div class="insight-title" style="color:var(--red)">Bottom line for ' + fmt(exp) + '/month</div>' +
+    '<div class="insight-body">The classic 4% rule says you need <strong>' + fmt(Math.round(need4)) + '</strong>. ' +
+    (safeRate > 0 ? 'Adjusted for India (' + safeRate + '%), you need <strong style="color:var(--amber)">' + fmt(Math.round(needSafe)) + '</strong>. ' : '') +
+    'The fastest way to close the gap: reduce expenses (move to a tier-2 city) or add even modest income (₹50–75K/month).</div>';
+
+  updateSliderFills();
+}
+
+/* ===== Tabs ===== */
+function openTab(id) {
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('p-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+/* ===== Net Worth ===== */
+function toggleNW() {
+  var body = document.getElementById('nw-body');
+  var arrow = document.getElementById('nw-arrow');
+  body.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+
+function parseINR(str) {
+  if (!str) return 0;
+  var clean = str.replace(/[^0-9.]/g, '');
+  return parseFloat(clean) || 0;
+}
+
+function calcNW() {
+  var prop = parseINR(document.getElementById('nw-prop').value);
+  var gold = parseINR(document.getElementById('nw-gold').value);
+  var car = parseINR(document.getElementById('nw-car').value);
+  var other = parseINR(document.getElementById('nw-other').value);
+  var illiquid = prop + gold + car + other;
+
+  var el = document.getElementById('nw-result');
+  if (illiquid === 0) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+
+  var corpus = gv('s-corpus');
+  var total = corpus + illiquid;
+  var corpusPct = Math.round((corpus / total) * 100);
+  var assetPct = 100 - corpusPct;
+
+  // Stacked bar
+  var barH = '<div style="display:flex;height:24px;border-radius:6px;overflow:hidden;margin-bottom:12px;">';
+  barH += '<div style="width:' + corpusPct + '%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;font-family:var(--mono);color:#fff;">' + (corpusPct > 8 ? corpusPct + '%' : '') + '</div>';
+  barH += '<div style="width:' + assetPct + '%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;font-family:var(--mono);color:#fff;">' + (assetPct > 8 ? assetPct + '%' : '') + '</div>';
+  barH += '</div>';
+  barH += '<div style="display:flex;gap:16px;font-size:10px;color:var(--text-muted);margin-bottom:12px;">';
+  barH += '<span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:var(--blue);"></span> Liquid (investable)</span>';
+  barH += '<span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:var(--green);"></span> Assets (safety net)</span>';
+  barH += '</div>';
+
+  var rows = '';
+  rows += '<div class="nw-row"><span class="nw-row-label">💰 Liquid savings (corpus)</span><span class="nw-row-val" style="color:var(--blue)">' + fmt(corpus) + '</span></div>';
+  if (prop > 0) rows += '<div class="nw-row"><span class="nw-row-label">🏠 Property / Land</span><span class="nw-row-val">' + fmt(prop) + '</span></div>';
+  if (gold > 0) rows += '<div class="nw-row"><span class="nw-row-label">✨ Gold & jewellery</span><span class="nw-row-val">' + fmt(gold) + '</span></div>';
+  if (car > 0) rows += '<div class="nw-row"><span class="nw-row-label">🚗 Vehicle</span><span class="nw-row-val">' + fmt(car) + '</span></div>';
+  if (other > 0) rows += '<div class="nw-row"><span class="nw-row-label">📦 Other assets</span><span class="nw-row-val">' + fmt(other) + '</span></div>';
+  rows += '<div class="nw-row total"><span class="nw-row-label" style="font-weight:600;color:var(--text);">Your total net worth</span><span class="nw-row-val" style="font-size:18px;color:var(--green)">' + fmt(total) + '</span></div>';
+
+  var msg = '<div class="nw-msg">';
+  msg += '💡 Your monthly expenses come from the liquid <strong style="color:var(--blue)">' + fmt(corpus) + '</strong> (that\'s what the calculator models above). ';
+  msg += 'But your real safety net is <strong>' + fmt(total) + '</strong>. ';
+  if (illiquid > corpus) {
+    msg += 'Your assets are worth <strong>' + (illiquid / corpus > 1 ? (illiquid / corpus).toFixed(1) + '×' : fmt(illiquid)) + ' more</strong> than your liquid savings alone. ';
+  }
+  msg += 'Property and gold aren\'t day-to-day spending money, but they\'re real wealth you can fall back on if needed — through selling, renting out, or using as loan collateral.';
+  msg += '</div>';
+
+  el.innerHTML = barH + rows + msg;
+}
+
+/* Init */
+calc();
+calcRule();
+</script>
+
+</body>
+</html>
