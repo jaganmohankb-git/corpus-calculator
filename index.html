@@ -252,6 +252,46 @@ input[type=range]::-moz-range-progress { background: var(--blue); border-radius:
   padding: 10px; background: var(--card); border-radius: var(--radius-sm);
 }
 
+/* ===== Feedback Widget ===== */
+.feedback-section {
+  margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border);
+}
+.feedback-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 24px; text-align: center;
+}
+.feedback-title {
+  font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 16px;
+}
+.feedback-buttons { display: flex; gap: 12px; justify-content: center; }
+.fb-btn {
+  padding: 12px 28px; font-size: 14px; font-weight: 500; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--card-hover); color: var(--text);
+  cursor: pointer; font-family: var(--font); transition: all 0.2s;
+  display: flex; align-items: center; gap: 8px;
+}
+.fb-btn:hover { border-color: var(--blue); background: var(--blue-bg); }
+.fb-btn.positive:hover { border-color: var(--green); background: var(--green-bg); }
+.fb-btn.negative:hover { border-color: var(--amber); background: var(--amber-bg); }
+.fb-thankyou {
+  font-size: 16px; font-weight: 600; margin-bottom: 16px; padding: 8px 0;
+}
+.fb-form-wrap {
+  margin-top: 16px; border-radius: var(--radius-sm); overflow: hidden;
+  border: 1px solid var(--border);
+}
+.fb-form-label {
+  font-size: 12px; color: var(--text-muted); margin-bottom: 8px;
+}
+.fb-links {
+  margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);
+  font-size: 12px; color: var(--text-muted); text-align: center;
+}
+.fb-links a {
+  color: var(--blue); text-decoration: none; font-weight: 500;
+}
+.fb-links a:hover { text-decoration: underline; }
+
 /* ===== Responsive ===== */
 @media (max-width: 520px) {
   .controls { grid-template-columns: 1fr; }
@@ -555,9 +595,35 @@ input[type=range]::-moz-range-progress { background: var(--blue); border-radius:
     </div>
   </div>
 
+  <!-- Feedback Widget -->
+  <div class="feedback-section">
+    <div class="feedback-card" id="fb-card">
+      <!-- Step 1: Quick reaction -->
+      <div id="fb-step1">
+        <div class="feedback-title">Was this tool useful?</div>
+        <div class="feedback-buttons">
+          <button class="fb-btn positive" onclick="fbReact('yes')">👍 Yes, helpful</button>
+          <button class="fb-btn negative" onclick="fbReact('no')">🤔 Could be better</button>
+        </div>
+      </div>
+      <!-- Step 2: Thank you + form -->
+      <div id="fb-step2" style="display:none;">
+        <div class="fb-thankyou" id="fb-msg"></div>
+        <div class="fb-form-label">Got a minute? Share more detail (optional):</div>
+        <div class="fb-form-wrap">
+          <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdmDDbEikjjeT3Q_sz8PV0KC-V631MyJz20FkXHNEepWXVMjw/viewform?embedded=true" width="100%" height="400" frameborder="0" marginheight="0" marginwidth="0" style="background:#1a1f2e;">Loading…</iframe>
+        </div>
+      </div>
+    </div>
+    <div class="fb-links">
+      Built by <a href="https://linkedin.com/in/jaganmohankb" target="_blank" rel="noopener">Jagan Mohan KB</a> · 
+      <a href="https://jkadvisory.in" target="_blank" rel="noopener">More free tools</a> · 
+      <a href="https://jkadvisory.in/#community" target="_blank" rel="noopener">Join the community</a>
+    </div>
+  </div>
+
   <!-- Footer -->
   <div class="footer">
-    Built by <a href="https://linkedin.com/in/jaganmohankb" target="_blank" rel="noopener">Jaganmohan KB</a> · Free to use & share
     <div class="disclaimer">
       ⚠️ This is a projection tool for personal awareness, not financial advice. Actual returns vary. Consult a SEBI-registered financial advisor for personalized planning.
     </div>
@@ -835,6 +901,20 @@ function calcNW() {
   msg += '</div>';
 
   el.innerHTML = barH + rows + msg;
+}
+
+/* ===== Feedback ===== */
+function fbReact(type) {
+  document.getElementById('fb-step1').style.display = 'none';
+  document.getElementById('fb-step2').style.display = 'block';
+  var msg = document.getElementById('fb-msg');
+  if (type === 'yes') {
+    msg.textContent = 'Glad it helped! 🙏';
+    msg.style.color = 'var(--green)';
+  } else {
+    msg.textContent = 'Thanks for being honest — that helps me improve it.';
+    msg.style.color = 'var(--amber)';
+  }
 }
 
 /* Init */
