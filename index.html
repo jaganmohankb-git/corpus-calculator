@@ -370,7 +370,7 @@ input[type=range]::-moz-range-progress { background: var(--blue); border-radius:
         <div class="ctrl-head">
           <span class="ctrl-label">
             Total Savings
-            <span class="help-dot">?<span class="tip">Your total invested amount in mutual funds, stocks, FDs, etc. This is the money you'll draw from.</span></span>
+            <span class="help-dot">?<span class="tip">Include everything you can access: mutual funds, FDs, savings, PF/EPF balance, NPS, PPF. Most people forget to count PF and NPS — check your passbook or UMANG app. This is the money you'll draw from.</span></span>
           </span>
           <span class="ctrl-val" style="color:var(--blue)" id="d-corpus"></span>
         </div>
@@ -503,7 +503,7 @@ input[type=range]::-moz-range-progress { background: var(--blue); border-radius:
         </div>
         <div class="nw-field">
           <label>📦 Other assets
-            <span class="help-dot">?<span class="tip">PF balance, PPF, NSC, post office deposits, LIC maturity value, or any other assets not included in the corpus above.</span></span>
+            <span class="help-dot">?<span class="tip">Any assets NOT already included in your Total Savings above — like LIC maturity value, post office deposits, or NSC. Don't double-count PF/NPS if you already added it to the corpus slider.</span></span>
           </label>
           <input type="text" id="nw-other" placeholder="e.g. 10,00,000" oninput="calcNW()">
         </div>
@@ -573,7 +573,7 @@ input[type=range]::-moz-range-progress { background: var(--blue); border-radius:
     </div>
     <div class="about-section">
       <h3>📊 What each input means</h3>
-      <p><strong>Total Savings (Corpus)</strong> — The lump sum you've saved or expect to have. This could be in mutual funds, stocks, PPF, FDs, or a mix. It's the money you'll be drawing from.</p>
+      <p><strong>Total Savings (Corpus)</strong> — The lump sum you can access over time. Include mutual funds, stocks, FDs, savings account balance, PF/EPF balance (check UMANG app or your passbook), NPS corpus, and PPF. Most people undercount by 20–40% because they forget PF and NPS — these are real money you'll eventually access.</p>
       <p><strong>Expected Return</strong> — The annual growth rate on your investments. Diversified equity mutual funds in India have historically returned 10–14% CAGR over 10+ years. Debt funds or FDs return 6–8%. Use 10–11% for a realistic blended estimate.</p>
       <p><strong>Monthly Expense</strong> — Your total household spend per month. Include rent/EMI, groceries, utilities, school fees, insurance premiums, medical expenses, and any SIP contributions you plan to continue.</p>
       <p><strong>Inflation</strong> — How fast prices rise. India's CPI inflation has averaged ~6% over the last decade. Metro cities tend to be 6–7%, smaller towns 4.5–5.5%. This makes your expenses grow every year even if your lifestyle stays the same.</p>
@@ -582,7 +582,7 @@ input[type=range]::-moz-range-progress { background: var(--blue); border-radius:
     <div class="about-section">
       <h3>🏠 Your hidden safety net</h3>
       <p>Many Indian families feel financially anxious because they only count their bank balance and mutual funds. But a typical middle-class household with 10–15 years of working experience often has <strong>₹30–80 lakh in property</strong> and <strong>₹5–15 lakh in gold</strong> sitting at home — wealth that doesn't show up in any app.</p>
-      <p>The "Your real safety net" section in the calculator lets you enter your property, gold, vehicle, and other asset values. These aren't money you withdraw monthly (so they don't change the drawdown calculation), but seeing your <strong>true net worth</strong> alongside your liquid corpus gives a much more complete — and often reassuring — picture of where you stand.</p>
+      <p>The "Your real safety net" section in the calculator lets you enter your property, gold, vehicle, and other asset values. These aren't money you withdraw monthly (so they don't change the drawdown calculation), but seeing your <strong>true net worth</strong> alongside your spendable savings gives a much more complete — and often reassuring — picture of where you stand.</p>
     </div>
     <div class="about-section">
       <h3>💡 The two most powerful levers</h3>
@@ -625,6 +625,8 @@ input[type=range]::-moz-range-progress { background: var(--blue); border-radius:
   <!-- Footer -->
   <div class="footer">
     <div class="disclaimer">
+      🔒 Your data stays on your device. Nothing is stored, saved, or sent anywhere — all calculations run in your browser.
+      <br><br>
       ⚠️ This is a projection tool for personal awareness, not financial advice. Actual returns vary. Consult a SEBI-registered financial advisor for personalized planning.
     </div>
   </div>
@@ -879,12 +881,12 @@ function calcNW() {
   barH += '<div style="width:' + assetPct + '%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;font-family:var(--mono);color:#fff;">' + (assetPct > 8 ? assetPct + '%' : '') + '</div>';
   barH += '</div>';
   barH += '<div style="display:flex;gap:16px;font-size:10px;color:var(--text-muted);margin-bottom:12px;">';
-  barH += '<span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:var(--blue);"></span> Liquid (investable)</span>';
+  barH += '<span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:var(--blue);"></span> Savings (spendable)</span>';
   barH += '<span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:var(--green);"></span> Assets (safety net)</span>';
   barH += '</div>';
 
   var rows = '';
-  rows += '<div class="nw-row"><span class="nw-row-label">💰 Liquid savings (corpus)</span><span class="nw-row-val" style="color:var(--blue)">' + fmt(corpus) + '</span></div>';
+  rows += '<div class="nw-row"><span class="nw-row-label">💰 Savings you can spend</span><span class="nw-row-val" style="color:var(--blue)">' + fmt(corpus) + '</span></div>';
   if (prop > 0) rows += '<div class="nw-row"><span class="nw-row-label">🏠 Property / Land</span><span class="nw-row-val">' + fmt(prop) + '</span></div>';
   if (gold > 0) rows += '<div class="nw-row"><span class="nw-row-label">✨ Gold & jewellery</span><span class="nw-row-val">' + fmt(gold) + '</span></div>';
   if (car > 0) rows += '<div class="nw-row"><span class="nw-row-label">🚗 Vehicle</span><span class="nw-row-val">' + fmt(car) + '</span></div>';
@@ -892,10 +894,10 @@ function calcNW() {
   rows += '<div class="nw-row total"><span class="nw-row-label" style="font-weight:600;color:var(--text);">Your total net worth</span><span class="nw-row-val" style="font-size:18px;color:var(--green)">' + fmt(total) + '</span></div>';
 
   var msg = '<div class="nw-msg">';
-  msg += '💡 Your monthly expenses come from the liquid <strong style="color:var(--blue)">' + fmt(corpus) + '</strong> (that\'s what the calculator models above). ';
+  msg += '💡 Your monthly expenses come from your <strong style="color:var(--blue)">' + fmt(corpus) + '</strong> in savings (that\'s what the calculator models above). ';
   msg += 'But your real safety net is <strong>' + fmt(total) + '</strong>. ';
   if (illiquid > corpus) {
-    msg += 'Your assets are worth <strong>' + (illiquid / corpus > 1 ? (illiquid / corpus).toFixed(1) + '×' : fmt(illiquid)) + ' more</strong> than your liquid savings alone. ';
+    msg += 'Your assets are worth <strong>' + (illiquid / corpus > 1 ? (illiquid / corpus).toFixed(1) + '×' : fmt(illiquid)) + ' more</strong> than your savings alone. ';
   }
   msg += 'Property and gold aren\'t day-to-day spending money, but they\'re real wealth you can fall back on if needed — through selling, renting out, or using as loan collateral.';
   msg += '</div>';
@@ -922,5 +924,6 @@ calc();
 calcRule();
 </script>
 
+<script data-goatcounter="https://corpus-calc.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
